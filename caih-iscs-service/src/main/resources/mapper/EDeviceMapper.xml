@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.charge.mapper.EDeviceMapper">
+
+    <select id="countDeviceNumber" resultType="Integer">
+        select count(d.community_id) from e_device d
+        <where>
+            <if test="communityId != null &amp;&amp; communityId != ''">
+                d.community_id = #{communityId}
+            </if>
+        </where>
+    </select>
+
+    <select id="countOnlineDeviceNumber" resultType="Integer">
+        select count(d.community_id) from e_device d
+        <where>
+            <if test="communityId != null &amp;&amp; communityId != ''">
+                d.community_id = #{communityId}
+            </if>
+            and d.`online` = 1
+        </where>
+    </select>
+
+    <select id="devices" resultType="com.caih.cloud.iscs.charge.model.vo.EDeviceVo">
+        select
+        d.id,
+        ( CASE WHEN ( d.`online` IS NULL OR d.`online` = '') THEN '' ELSE d.`online` END ) online,
+        ( CASE WHEN ( d.`device_no` IS NULL OR  d.`device_no` = '') THEN '' ELSE  d.`device_no` END ) deviceNo,
+        ( CASE WHEN ( d.`community_id` IS NULL OR  d.`community_id` = '') THEN '' ELSE  d.`community_id` END ) communityId
+        from e_device d
+        <where>
+            <if test="dto.online != null &amp;&amp; dto.online != ''">
+                d.online = #{dto.online}
+            </if>
+            <if test="dto.deviceNo != null &amp;&amp; dto.deviceNo != ''">
+                and d.device_no LIKE CONCAT('%',#{dto.deviceNo},'%')
+            </if>
+        </where>
+        order by d.create_time desc
+    </select>
+
+</mapper>

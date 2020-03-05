@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.OrderMapper">
+    <select id="orders" resultType="com.caih.cloud.iscs.model.vo.OrderVo">
+        SELECT
+        o.id id,
+        ( CASE WHEN ( o.order_no IS NULL OR o.order_no = '') THEN '' ELSE o.order_no END ) orderNo,
+        o.store_no storeNo,
+        ( CASE WHEN ( o.deal_no IS NULL OR o.deal_no = '') THEN '' ELSE o.deal_no END ) dealNo,
+        ( CASE WHEN ( o.order_time IS NULL OR o.order_time = '') THEN '' ELSE DATE_FORMAT(o.order_time,'%Y-%m-%d %T')
+        END ) orderTime,
+        ( CASE WHEN ( o.delivery_time IS NULL OR o.delivery_time = '') THEN '' ELSE
+        DATE_FORMAT(o.delivery_time,'%Y-%m-%d %T') END ) deliveryTime,
+        ( CASE WHEN ( o.pay_time IS NULL OR o.pay_time = '') THEN '' ELSE DATE_FORMAT(o.pay_time,'%Y-%m-%d %T') END )
+        payTime,
+        ( CASE WHEN ( o.buyer IS NULL OR o.buyer = '') THEN '' ELSE o.buyer END ) buyerName,
+        ( CASE WHEN ( o.buyer_phone IS NULL OR o.buyer_phone = '') THEN '' ELSE o.buyer_phone END ) buyerPhone,
+        ( CASE WHEN ( o.buyer_address IS NULL OR o.buyer_address = '') THEN '' ELSE o.buyer_address END ) buyerAddress,
+        ( CASE WHEN ( o.buyer_remarks IS NULL OR o.buyer_remarks = '') THEN '' ELSE o.buyer_remarks END ) buyerRemarks,
+        ( CASE WHEN ( o.postage IS NULL OR o.postage = 0.000000) THEN 0 ELSE o.postage END ) postage,
+        ( CASE WHEN ( o.express_com_no IS NULL OR o.express_com_no = '') THEN '' ELSE o.express_com_no END )
+        expressComNo,
+        ( CASE WHEN ( o.express_no IS NULL OR o.express_no = '') THEN '' ELSE o.express_no END ) expressNo,
+        (select p.label from pig.sys_dict p where p.type = 'order_state' and p.value = o.order_state) statusCN,
+        o.order_state status
+        FROM
+        iscs_order_info o
+        <where>
+
+            <if test="qo.startTime != null &amp;&amp; qo.startTime != ''">
+                and DATE_FORMAT(o.order_time,'%Y-%m-%d') <![CDATA[ >= ]]> #{qo.startTime}
+            </if>
+            <if test="qo.endTime != null &amp;&amp; qo.endTime != ''">
+                and DATE_FORMAT(o.order_time,'%Y-%m-%d') <![CDATA[ <= ]]> #{qo.endTime}
+            </if>
+            <if test="qo.startTime != null &amp;&amp; qo.startTime != '' &amp;&amp; qo.endTime != null &amp;&amp; qo.endTime != ''">
+                and DATE_FORMAT(o.order_time,'%Y-%m-%d') <![CDATA[ >= ]]> #{qo.startTime} and
+                DATE_FORMAT(o.order_time,'%Y-%m-%d') <![CDATA[ <= ]]> #{qo.endTime}
+            </if>
+            <if test="qo.orderNo != null &amp;&amp; qo.orderNo != ''">
+                and o.order_no LIKE CONCAT('%',#{qo.orderNo},'%')
+            </if>
+            <if test="qo.storeNo != null &amp;&amp; qo.storeNo != ''">
+                and o.store_no LIKE CONCAT('%',#{qo.storeNo},'%')
+            </if>
+            <if test="qo.buyerName != null &amp;&amp; qo.buyerName != ''">
+                and o.buyer LIKE CONCAT('%',#{qo.buyerName},'%')
+            </if>
+            <if test="qo.buyerPhone != null &amp;&amp; qo.buyerPhone != ''">
+                and o.buyer_phone LIKE CONCAT('%',#{qo.buyerPhone},'%')
+            </if>
+            <if test="qo.orderStatus != null">
+                and o.order_state = #{qo.orderStatus}
+            </if>
+        </where>
+        order by o.order_time desc
+    </select>
+
+    <select id="order" resultType="com.caih.cloud.iscs.model.vo.OrderVo">
+        SELECT
+        o.id id,
+        o.order_no orderNo,
+        o.store_no storeNo,
+        o.deal_no dealNo,
+        DATE_FORMAT(o.order_time,'%Y-%m-%d %T') orderTime,
+        DATE_FORMAT(o.delivery_time,'%Y-%m-%d %T') deliveryTime,
+        DATE_FORMAT(o.pay_time,'%Y-%m-%d %T') payTime,
+        o.buyer buyerName,
+        o.buyer_phone buyerPhone,
+        o.buyer_address buyerAddress,
+        ( CASE WHEN ( o.buyer_remarks IS NULL OR o.buyer_remarks = '') THEN '' ELSE o.buyer_remarks END ) buyerRemarks,
+        o.postage postage,
+        o.express_com_no expressComNo,
+        o.express_no expressNo,
+        (select p.label from pig.sys_dict p where p.type = 'order_state' and p.value = o.order_state) statusCN,
+        o.order_state status
+        FROM
+        iscs_order_info o
+        <where>
+            <if test="orderId != null &amp;&amp; orderId != ''">
+                o.id = #{orderId}
+            </if>
+        </where>
+    </select>
+    <select id="getOrderByOrderNo" resultType="com.caih.cloud.iscs.model.vo.OrderVo">
+        SELECT
+        o.id id,
+        o.order_no orderNo,
+        o.store_no storeNo,
+        o.deal_no dealNo,
+        DATE_FORMAT(o.order_time,'%Y-%m-%d %T') orderTime,
+        DATE_FORMAT(o.delivery_time,'%Y-%m-%d %T') deliveryTime,
+        DATE_FORMAT(o.pay_time,'%Y-%m-%d %T') payTime,
+        o.buyer buyerName,
+        o.buyer_phone buyerPhone,
+        o.buyer_address buyerAddress,
+        ( CASE WHEN ( o.buyer_remarks IS NULL OR o.buyer_remarks = '') THEN '' ELSE o.buyer_remarks END ) buyerRemarks,
+        o.postage postage,
+        o.express_com_no expressComNo,
+        o.express_no expressNo,
+        (select p.label from pig.sys_dict p where p.type = 'order_state' and p.value = o.order_state) statusCN,
+        o.order_state status
+        FROM
+        iscs_order_info o
+        <where>
+            <if test="orderNo != null &amp;&amp; orderNo != ''">
+                o.order_no = #{orderNo}
+            </if>
+        </where>
+    </select>
+
+</mapper>

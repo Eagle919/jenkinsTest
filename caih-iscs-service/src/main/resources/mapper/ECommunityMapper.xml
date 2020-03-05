@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.charge.mapper.ECommunityMapper">
+
+    <select id="communitys" resultType="com.caih.cloud.iscs.charge.model.vo.ECommunityVo">
+        select
+        ( CASE WHEN ( c.`name` IS NULL OR c.`name` = '') THEN '' ELSE c.`name` END ) name,
+        ( CASE WHEN ( c.address IS NULL OR  c.address = '') THEN '' ELSE  c.address END ) address,
+        ( CASE WHEN ( c.id IS NULL OR   c.id = '') THEN '' ELSE   c.id END ) communityId,
+        ( CASE WHEN ( c.rate IS NULL OR   c.rate = '') THEN '' ELSE   c.rate END ) rate,
+        ( CASE WHEN ( c.remark IS NULL OR   c.remark = '') THEN '' ELSE   c.remark END ) remark
+        from e_community c
+        <where>
+            <if test="dto.name != null &amp;&amp; dto.name != ''">
+                c.name LIKE CONCAT('%',#{dto.name},'%')
+            </if>
+            <if test="dto.address != null &amp;&amp; dto.address != ''">
+                and c.address LIKE CONCAT('%',#{dto.address},'%')
+            </if>
+        </where>
+        order by c.create_time desc
+    </select>
+
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.charge.mapper.EMemberMapper">
+
+    <select id="members" resultType="com.caih.cloud.iscs.charge.model.entity.EMember">
+        SELECT
+            m.id,
+            ( CASE WHEN (  m.`name` IS NULL OR  m.`name` = '') THEN '' ELSE  m.`name` END ) name,
+            ( CASE WHEN (   m.`member_no` IS NULL OR   m.`member_no` = '') THEN '' ELSE   m.`member_no` END ) memberNo
+        FROM e_member m
+	    LEFT JOIN e_community c ON m.member_no = c.user_no
+	    <where>
+            <if test="dto.name != null &amp;&amp; dto.name != ''">
+                m.`name` LIKE CONCAT('%',#{dto.name},'%')
+            </if>
+        </where>
+	    order by m.create_time desc
+    </select>
+
+</mapper>

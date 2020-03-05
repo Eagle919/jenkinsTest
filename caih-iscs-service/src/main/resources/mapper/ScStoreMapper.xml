@@ -1,0 +1,35 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.ScStoreMapper">
+    <select id="list" resultType="com.caih.cloud.iscs.model.vo.ScStoreVo">
+        select
+        t.id id,
+        ( CASE WHEN ( t.store_no IS NULL OR t.store_no = '') THEN '' ELSE t.store_no END ) storeNo,
+        ( CASE WHEN ( t.store_name IS NULL OR t.store_name = '') THEN '' ELSE t.store_name END ) storeName,
+        ( CASE WHEN ( t.acc_no IS NULL OR t.acc_no = '') THEN '' ELSE t.acc_no END ) accNo,
+        ( CASE WHEN ( t.pwd IS NULL OR t.pwd = '') THEN '' ELSE t.pwd END ) pwd,
+        ( CASE WHEN ( t.user_name IS NULL OR t.user_name = '') THEN '' ELSE t.user_name END ) userName,
+        ( CASE WHEN ( t.phone IS NULL OR t.phone = '') THEN '' ELSE t.phone END ) phone,
+        ( CASE WHEN ( t.acc_balance IS NULL OR t.acc_balance = 0.000000) THEN 0 ELSE format(t.acc_balance, 2) END ) accBalance,
+        DATE_FORMAT(t.create_time,'%Y-%m-%d %T') AS createTime,
+        DATE_FORMAT(t.update_time,'%Y-%m-%d %T') AS updateTime
+        from
+        iscs_store_info t
+        <where>
+        <if test="qo.accNo != null &amp;&amp; qo.accNo != ''">
+            t.acc_no LIKE CONCAT('%',#{qo.accNo},'%')
+        </if>
+        <if test="qo.userName != null &amp;&amp; qo.userName != ''">
+            and t.user_name LIKE CONCAT('%',#{qo.userName},'%')
+        </if>
+        </where>
+    </select>
+
+    <!--调用版本比较存储过程-->
+    <select id="saveToUserTable" statementType="CALLABLE"
+            parameterType="com.caih.cloud.iscs.model.qo.StoreQo">
+          call proc_store_syn_user(
+              #{storeQo.accNo,mode = IN}, #{storeQo.phone,mode = IN}
+          )
+    </select>
+
+</mapper>
