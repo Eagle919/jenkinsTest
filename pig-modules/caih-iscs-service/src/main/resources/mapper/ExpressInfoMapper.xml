@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.ExpressInfoMapper">
+    <select id="getExpressName" resultType="java.lang.String">
+        SELECT
+            b.express_com_name expressComName
+        FROM
+            bs_express_info b
+        <where>
+            <if test="expressComNo != null &amp;&amp; expressComNo != ''">
+                b.express_com_no = #{expressComNo}
+            </if>
+        </where>
+    </select>
+</mapper>

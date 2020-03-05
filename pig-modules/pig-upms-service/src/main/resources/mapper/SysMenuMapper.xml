@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~    Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the pig4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: lengleng (wangiegie@gmail.com)
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.pig.admin.mapper.SysMenuMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.github.pig.admin.model.entity.SysMenu">
+        <id column="menu_id" property="menuId" />
+        <result column="name" property="name" />
+        <result column="permission" property="permission" />
+        <result column="url" property="url" />
+        <result column="path" property="path" />
+        <result column="method" property="method" />
+        <result column="parent_id" property="parentId" />
+        <result column="icon" property="icon" />
+        <result column="component" property="component" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <resultMap id="MenuVoResultMap" type="com.github.pig.common.vo.MenuVO">
+        <id column="menu_id" property="menuId" />
+        <result column="name" property="name" />
+        <result column="permission" property="permission" />
+        <result column="url" property="url" />
+        <result column="method" property="method" />
+        <result column="parent_id" property="parentId" />
+        <result column="icon" property="icon" />
+        <result column="path" property="path" />
+        <result column="component" property="component" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <select id="findMenuByRoleName" resultMap="MenuVoResultMap">
+        SELECT
+            t3.*
+        FROM
+        sys_role t1
+        LEFT JOIN sys_role_menu t2 ON t2.role_id = t1.role_id
+        LEFT JOIN sys_menu t3 ON t3.menu_id = t2.menu_id
+        WHERE
+        t1.del_flag = 0
+        AND t3.del_flag = 0
+        AND t1.role_code = #{role}
+        ORDER BY t3.sort DESC
+    </select>
+
+
+    <select id="findMenuByRoleCode" resultType="com.github.pig.admin.model.dto.Menu">
+        SELECT DISTINCT
+            ( t3.menu_id ),
+            t3.parent_id,
+            t3.name AS resourceDesc,
+            t3.url AS resourceName,
+            t3.url AS resourceString,
+            t3.sort,
+            'route' AS resourceType,
+            'null' AS resourceTypeName
+        FROM
+            sys_role t1
+            LEFT JOIN sys_role_menu t2 ON t2.role_id = t1.role_id
+            LEFT JOIN sys_menu t3 ON t3.menu_id = t2.menu_id
+        WHERE
+            t1.del_flag = 0
+            AND t3.del_flag = 0
+            AND t1.role_code IN
+        <foreach collection="roleList" open="(" close=")" separator="," item="role">
+            #{role, jdbcType=VARCHAR}
+        </foreach>
+        ORDER BY
+            t3.menu_id,
+            t3.sort DESC
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.TempOrderMapper">
+
+    <select id="list" resultType="com.caih.cloud.iscs.model.vo.PaymentRecordVo">
+        select
+            s.store_no,
+            FORMAT( t.trxamt / 100, 2 ) AS trxamt,
+            FORMAT( t.fee / 100, 2 ) AS fee,
+            STR_TO_DATE(t.paytime, '%Y%m%d%H%i%s') as paytime,
+            case when r.trxstatus is null then '交易成功' else '已退款' end as trxstatus,
+            t.cusorderid
+        from
+        temp_order_qrcode t
+        inner join iscs_store_info s on s.cusid = t.cusid
+        left join (
+        select order_no,trxstatus,fintime from ( select order_no,trxstatus,fintime from iscs_refund_order_info order by fintime desc) a group by a.order_no
+        ) r on r.order_no = t.order_no
+        <where>
+            <if test="qo.storeNo != null &amp;&amp; qo.storeNo != ''">
+                s.store_no LIKE CONCAT('%',#{qo.storeNo},'%')
+            </if>
+            <if test="qo.cusid != null &amp;&amp; qo.cusid != ''">
+                and t.cusid LIKE CONCAT('%',#{qo.cusid},'%')
+            </if>
+        </where>
+        order by t.paytime desc
+    </select>
+
+</mapper>

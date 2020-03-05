@@ -1,0 +1,42 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.ScTurnoverMapper">
+    <select id="list" resultType="com.caih.cloud.iscs.model.dto.ScTurnoverDto">
+        select
+        t.id id,
+        ( CASE WHEN ( t.deal_no IS NULL OR t.deal_no = '') THEN '' ELSE t.deal_no END ) dealNo,
+        ( CASE WHEN ( t.store_no IS NULL OR t.store_no = '') THEN '' ELSE t.store_no END ) storeNo,
+        ( CASE WHEN ( d.LABEL IS NULL OR d.LABEL = '') THEN '' ELSE d.LABEL END ) turnoverType,
+        ( CASE WHEN ( t.turnover_amt IS NULL OR t.turnover_amt = 0.000000) THEN 0 ELSE format(t.turnover_amt, 2) END ) turnoverAmt,
+        ( CASE WHEN ( t.acc_balance IS NULL OR t.acc_balance = 0.000000) THEN 0 ELSE format(t.acc_balance, 2) END ) accBalance,
+        ( CASE WHEN ( t.remarks IS NULL OR t.remarks = '') THEN '' ELSE t.remarks END ) remarks,
+        ( CASE WHEN ( t.turnover_time IS NULL OR t.turnover_time = '') THEN '' ELSE DATE_FORMAT(t.turnover_time,'%Y-%m-%d %T') END ) turnoverTime,
+        ( CASE WHEN ( s.store_name IS NULL OR s.store_name = '') THEN '' ELSE s.store_name END ) storeName
+        from
+        iscs_turnover_info t
+        LEFT JOIN
+        iscs_store_info s
+        ON t.store_no = s.store_no
+        LEFT JOIN (SELECT * FROM pig.sys_dict WHERE TYPE = 'turnover_type') d ON t.turnover_type = d.VALUE
+        <where>
+        <if test="qo.dealNo != null &amp;&amp; qo.dealNo != ''">
+            t.deal_no LIKE CONCAT('%',#{qo.dealNo},'%')
+        </if>
+        <if test="qo.storeNo != null &amp;&amp; qo.storeNo != ''">
+            and t.store_no LIKE CONCAT('%',#{qo.storeNo},'%')
+        </if>
+        <if test="qo.storeName != null &amp;&amp; qo.storeName != ''">
+            and s.store_name LIKE CONCAT('%',#{qo.storeName},'%')
+        </if>
+        <if test="qo.startTime != null &amp;&amp; qo.startTime != ''">
+            and t.turnover_time <![CDATA[ >= ]]> #{qo.startTime}
+        </if>
+        <if test="qo.endTime != null &amp;&amp; qo.endTime != ''">
+            and t.turnover_time <![CDATA[ <= ]]> #{qo.endTime}
+        </if>
+        <if test="qo.startTime != null &amp;&amp; qo.startTime != '' &amp;&amp; qo.endTime != null &amp;&amp; qo.endTime != ''">
+            and t.turnover_time <![CDATA[ >= ]]> #{qo.startTime} and t.turnover_time <![CDATA[ <= ]]> #{qo.endTime}
+        </if>
+        </where>
+        order by t.turnover_time desc
+    </select>
+</mapper>

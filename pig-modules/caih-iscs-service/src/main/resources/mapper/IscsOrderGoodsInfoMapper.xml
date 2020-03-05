@@ -1,0 +1,18 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.IscsOrderGoodsInfoMapper">
+
+    <select id="queryByValidKey" resultType="com.caih.cloud.iscs.model.dto.TempOrderQrcodeDto">
+        select
+        valid_key,
+        order_no,
+        qr_code,
+        ret_url
+        from
+        temp_order_qrcode t
+        where
+        1 = 1
+        <if test="validKey != null &amp;&amp; validKey != ''">
+            and valid_key = #{validKey}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,59 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caih.cloud.iscs.mapper.IscsPayMapper">
+
+    <select id="queryByValidKey" resultType="com.caih.cloud.iscs.model.dto.TempOrderQrcodeDto">
+        select
+            t.valid_key,
+            t.order_no,
+            t.qr_code,
+            t.ret_url,
+            o.buyer,
+            ( (select sum(ifnull(g.goods_num,0)*ifnull(g.goods_price,0))
+               from iscs_order_goods_info g where g.order_no = t.order_no
+              )*1 + ifnull(o.postage,0)*1
+            ) as orderTotalAmt,
+            s.cusid,
+            s.appid,
+            s.md5key
+        from
+        temp_order_qrcode t
+        inner join iscs_order_info o on o.order_no = t.order_no
+        inner join iscs_store_info s on s.store_no = o.store_no
+        where
+        1 = 1
+        <if test="validKey != null &amp;&amp; validKey != ''">
+            and t.valid_key = #{validKey}
+        </if>
+    </select>
+
+    <select id="queryByOrderNo" resultType="com.caih.cloud.iscs.model.dto.TempOrderQrcodeDto">
+        select
+        t.valid_key,
+        t.order_no,
+        t.qr_code,
+        t.ret_url,
+        o.buyer,
+        ( (select sum(ifnull(g.goods_num,0)*ifnull(g.goods_price,0))
+        from iscs_order_goods_info g where g.order_no = t.order_no
+        )*1 + ifnull(o.postage,0)*1
+        ) as orderTotalAmt,
+        s.cusid,
+        s.appid,
+        s.md5key
+        from
+        temp_order_qrcode t
+        inner join iscs_order_info o on o.order_no = t.order_no
+        inner join iscs_store_info s on s.store_no = o.store_no
+        where
+        1 = 1
+        <if test="orderNo != null &amp;&amp; orderNo != ''">
+            and t.order_no = #{orderNo}
+        </if>
+    </select>
+
+    <insert id="insertOrderQrcode">
+        insert into temp_order_qrcode (valid_key,order_no,qr_code,ret_url) values
+        (#{obj.validKey},#{obj.orderNo},#{obj.qrCode},#{obj.retUrl})
+    </insert>
+
+</mapper>
